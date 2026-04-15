@@ -1,0 +1,53 @@
+@model IEnumerable<IdeasCreativasApp.Models.Idea>
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+@if (ViewBag.SuccessMessage != null)
+{
+    <div class="alert alert-success">
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+<div class="layout-twocol">
+    <div class="ideas-section">
+        <h2>Listado de Ideas Aprobadas</h2>
+        <p class="text-muted">Las siguientes ideas han sido aprobadas por el profesorado.</p>
+
+        <div class="items-list">
+            @if (!Model.Any())
+            {
+                <div class="card" style="text-align: center; color: var(--text-muted);">
+                    <p>No hay ideas aprobadas aún.</p>
+                </div>
+            }
+            @foreach (var idea in Model)
+            {
+                <div class="card">
+                    <h3 style="margin-top:0; color: var(--success);">@idea.Equipo?.Nombre</h3>
+                    <p style="font-size: 1.1rem; line-height: 1.5;">@idea.Texto</p>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;">
+                        Aprobada el: @idea.FechaHoraPostulacion.ToString("g")
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="actions-section">
+        <div class="card" style="text-align:center;">
+            <h3>¿Eres nuevo?</h3>
+            <p class="text-muted" style="margin-bottom: 2rem;">Inicia registrándote y forma tu equipo para postular ideas.</p>
+            
+            <a asp-controller="Alumno" asp-action="Create" class="btn btn-outline" style="width:100%; margin-bottom:1rem;">Registrar Alumno</a>
+            <a asp-controller="Equipo" asp-action="Create" class="btn" style="width:100%; margin-bottom:1rem;">Crear Equipo</a>
+            <a asp-controller="Equipo" asp-action="AddIntegrante" class="btn btn-outline" style="width:100%; margin-bottom:2rem; border-color: var(--secondary-color); color: var(--secondary-color);">Añadir Integrante</a>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 2rem; margin-top: 1rem;">
+                <h4 style="margin-top:0; margin-bottom: 1rem;">Profesorado</h4>
+                <a asp-controller="Profesor" asp-action="Validar" class="btn btn-success" style="width:100%;">Ingreso Profesor</a>
+            </div>
+        </div>
+    </div>
+</div>

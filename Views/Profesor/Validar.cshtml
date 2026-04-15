@@ -1,0 +1,43 @@
+@model IEnumerable<IdeasCreativasApp.Models.Idea>
+@{
+    ViewData["Title"] = "Validación de Ideas";
+}
+
+<div class="full-container">
+    <h2>Control de Ideas Postuladas</h2>
+    <p class="text-muted">Selecciona una idea para evaluarla y modificar su estado de aprobación.</p>
+
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-success">
+            @ViewBag.Message
+        </div>
+    }
+
+    <div class="items-list" style="margin-top: 2rem;">
+        @if (!Model.Any())
+        {
+            <div class="card" style="text-align: center; color: var(--text-muted);">
+                <p>No hay ideas postuladas aún.</p>
+            </div>
+        }
+
+        @foreach (var idea in Model)
+        {
+            <a asp-action="Evaluar" asp-route-id="@idea.Id" class="card" style="text-decoration: none; color: inherit; display: block; border-left: 4px solid @(idea.Estado == "Pendiente" ? "var(--primary-color)" : idea.Estado == "Aprobada" ? "var(--success)" : "var(--danger)");">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <h3 style="margin-top:0; color:var(--primary-color);">@idea.Equipo?.Nombre</h3>
+                        <p style="font-size: 1rem;">@idea.Texto</p>
+                        <small class="text-muted">Postulada: @idea.FechaHoraPostulacion.ToString("g")</small>
+                    </div>
+                    <div>
+                        <span class="badge @(idea.Estado == "Pendiente" ? "bg-warning" : idea.Estado == "Aprobada" ? "bg-success" : "bg-danger")">
+                            @idea.Estado
+                        </span>
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+</div>

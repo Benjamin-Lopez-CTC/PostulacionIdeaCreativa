@@ -1,0 +1,93 @@
+@model IdeasCreativasApp.ViewModels.IdeaEvaluacionViewModel
+@{
+    ViewData["Title"] = "Evaluar Idea";
+}
+
+<div class="form-container">
+    <div class="card" style="margin-top: 2rem;">
+        <h2 style="margin-top: 0; color: var(--primary-color);">@Model.NombreEquipo</h2>
+        <p style="font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+            "@Model.TextoIdea"
+        </p>
+
+        <form asp-action="Evaluar" method="post">
+            <input type="hidden" asp-for="IdeaId" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 1rem;"></div>
+
+            <div style="display:flex; gap: 1rem; align-items:center; margin-bottom: 1rem;">
+                <input type="checkbox" asp-for="EsCreativa" id="esCreativa" style="width: auto;" class="eval-check" />
+                <label for="esCreativa" style="margin: 0; cursor: pointer;">Es creativa</label>
+            </div>
+
+            <div style="display:flex; gap: 1rem; align-items:center; margin-bottom: 1rem;">
+                <input type="checkbox" asp-for="BienPlanteada" id="bienPlanteada" style="width: auto;" class="eval-check" />
+                <label for="bienPlanteada" style="margin: 0; cursor: pointer;">Está bien planteada</label>
+            </div>
+
+            <div style="display:flex; gap: 1rem; align-items:center; margin-bottom: 1.5rem;">
+                <input type="checkbox" asp-for="EsOriginal" id="esOriginal" style="width: auto;" class="eval-check" />
+                <label for="esOriginal" style="margin: 0; cursor: pointer;">La idea es original</label>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Observaciones">Observaciones (Opcional)</label>
+                <textarea asp-for="Observaciones" rows="3" placeholder="Ingresa comentarios adicionales..."></textarea>
+            </div>
+
+            <div class="form-group" style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                <label style="color: white; font-weight: bold; margin-bottom: 1rem;">Decisión del Profesor</label>
+                
+                <div style="display:flex; gap: 1rem; align-items:center; margin-bottom: 0.5rem;">
+                    <input type="radio" asp-for="EstadoAprobacion" value="Aprobada" id="aprobada" style="width:auto;" />
+                    <label for="aprobada" class="text-success" style="margin:0; cursor:pointer; font-weight: bold;">Aprobar Idea</label>
+                </div>
+                
+                <div style="display:flex; gap: 1rem; align-items:center;">
+                    <input type="radio" asp-for="EstadoAprobacion" value="Reprobada" id="reprobada" style="width:auto;" />
+                    <label for="reprobada" class="text-danger" style="margin:0; cursor:pointer; font-weight: bold;">Reprobar Idea</label>
+                </div>
+                
+                <span asp-validation-for="EstadoAprobacion" class="text-danger" id="aprobacionError"></span>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a asp-action="Validar" class="btn btn-outline" style="flex:1;">Cancelar</a>
+                <button type="submit" class="btn btn-success" style="flex:2;">Guardar Evaluación</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var checks = document.querySelectorAll('.eval-check');
+            var btnAprobar = document.getElementById('aprobada');
+            
+            function validateAprobar() {
+                var allChecked = true;
+                checks.forEach(function(chk) {
+                    if(!chk.checked) allChecked = false;
+                });
+                
+                if(!allChecked) {
+                    btnAprobar.disabled = true;
+                    if(btnAprobar.checked) {
+                        btnAprobar.checked = false;
+                    }
+                } else {
+                    btnAprobar.disabled = false;
+                }
+            }
+            
+            checks.forEach(function(chk) {
+                chk.addEventListener('change', validateAprobar);
+            });
+            
+            // Execute on load
+            validateAprobar();
+        });
+    </script>
+}

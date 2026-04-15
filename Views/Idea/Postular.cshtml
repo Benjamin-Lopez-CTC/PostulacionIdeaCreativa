@@ -1,0 +1,48 @@
+@model IdeasCreativasApp.ViewModels.IdeaPostulacionViewModel
+@{
+    ViewData["Title"] = "Postular Idea";
+}
+
+<div class="form-container">
+    <div class="card" style="margin-top: 2rem;">
+        <h2 style="text-align: center; margin-top: 0;">Postular Idea Creativa</h2>
+        <p class="text-muted" style="text-align: center; margin-bottom: 2rem;">
+            Envía tu idea para que el profesorado la revise.
+        </p>
+
+        @if (ViewBag.SuccessMessage != null)
+        {
+            <div class="alert alert-success">
+                @ViewBag.SuccessMessage
+            </div>
+        }
+
+        <form asp-action="Postular" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 1rem;"></div>
+
+            <div class="form-group">
+                <label asp-for="NombreDelEquipo">Nombre del Equipo</label>
+                <input asp-for="NombreDelEquipo" placeholder="Ingresa el nombre del equipo..." />
+                <span asp-validation-for="NombreDelEquipo" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PasswordDelEquipo">Contraseña del Equipo</label>
+                <input asp-for="PasswordDelEquipo" type="password" placeholder="Ingresa la contraseña..." />
+                <span asp-validation-for="PasswordDelEquipo" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="TextoDeLaIdea">Idea Creativa</label>
+                <textarea asp-for="TextoDeLaIdea" placeholder="Describe tu idea aquí..." rows="4"></textarea>
+                <span asp-validation-for="TextoDeLaIdea" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Postular idea</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

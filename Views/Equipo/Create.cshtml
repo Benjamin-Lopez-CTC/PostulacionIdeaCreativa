@@ -1,0 +1,46 @@
+@model IdeasCreativasApp.ViewModels.EquipoRegistrationViewModel
+@{
+    ViewData["Title"] = "Registro de Equipo";
+}
+
+<div class="form-container">
+    <div class="card" style="margin-top: 2rem;">
+        <h2 style="text-align: center; margin-top: 0;">Registro de Equipo</h2>
+        <p class="text-muted" style="text-align: center; margin-bottom: 2rem;">
+            Forma un equipo para poder postular tus ideas. Máximo 2 integrantes.
+        </p>
+
+        <form asp-action="Create" method="post">
+            <div class="form-group">
+                <label asp-for="NombreDeEquipo">Nombre del Equipo</label>
+                <input asp-for="NombreDeEquipo" placeholder="Ej. Los Innovadores" />
+                <span asp-validation-for="NombreDeEquipo" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password">Contraseña del Equipo</label>
+                <input asp-for="Password" type="password" placeholder="Ingresa una contraseña..." />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmPassword">Confirmar Contraseña</label>
+                <input asp-for="ConfirmPassword" type="password" placeholder="Repite la contraseña..." />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IntegrantesIds">Selecciona los Integrantes (máx. 2)</label>
+                <select asp-for="IntegrantesIds" asp-items="Model.AlumnosDisponibles" multiple="multiple" style="height: 120px;"></select>
+                <span asp-validation-for="IntegrantesIds" class="text-danger"></span>
+                <small class="text-muted" style="display:block; margin-top:5px;">Mantén presionado Ctrl (Windows) o Cmd (Mac) para seleccionar tu usuario y al de tu compañero.</small>
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Crear Equipo</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
