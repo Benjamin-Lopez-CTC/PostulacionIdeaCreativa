@@ -1,4 +1,4 @@
-@model IEnumerable<IdeasCreativasApp.Models.Idea>
+@model IdeasCreativasApp.ViewModels.ValidarViewModel
 @{
     ViewData["Title"] = "Validación de Ideas";
 }
@@ -14,15 +14,22 @@
         </div>
     }
 
-    <div class="items-list" style="margin-top: 2rem;">
-        @if (!Model.Any())
+    <!-- Botón Mostrar Similares -->
+    <div style="margin: 1.5rem 0;">
+        <button id="btnMostrarSimilares" class="btn btn-similares" onclick="toggleSimilares()">
+            <span class="btn-icon">🔍</span> Ordenar por Similitudes
+        </button>
+    </div>
+
+    <div id="lista-normal" class="items-list" style="margin-top: 2rem;">
+        @if (!Model.TodasLasIdeas.Any())
         {
             <div class="card" style="text-align: center; color: var(--text-muted);">
                 <p>No hay ideas postuladas aún.</p>
             </div>
         }
 
-        @foreach (var idea in Model)
+        @foreach (var idea in Model.TodasLasIdeas)
         {
             <a asp-action="Evaluar" asp-route-id="@idea.Id" class="card" style="text-decoration: none; color: inherit; display: block; border-left: 4px solid @(idea.Estado == "Pendiente" ? "var(--primary-color)" : idea.Estado == "Aprobada" ? "var(--success)" : "var(--danger)");">
                 <div style="display: flex; justify-content: space-between; align-items: start;">
@@ -40,4 +47,243 @@
             </a>
         }
     </div>
+
+    <!-- Lista ordenada por similitudes -->
+    <div id="lista-similares" style="display: none; margin-bottom: 2rem; margin-top: 2rem;">
+        @if (Model.ParesSimilares.Any())
+        {
+            <div class="similares-title">
+                ⚠️ Similitudes Detectadas 
+                <span class="count-badge">@Model.ParesSimilares.Count par(es)</span>
+            </div>
+
+            @foreach (var par in Model.ParesSimilares)
+            {
+                <div class="similar-group" style="padding-bottom: 0.5rem;">
+                    <div class="similar-group-header">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">
+                            Par Identificado
+                        </span>
+                        <span class="similitud-badge">@par.Similitud.ToString("P0") similitud</span>
+                    </div>
+                    
+                    <div class="palabras-comunes" style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                        <strong>Raíces causantes de similitud:</strong>
+                        @foreach (var p in par.PalabrasComunes)
+                        {
+                            <span style="margin-right: 0.5rem; color: #f87171;">@p.Palabra (@p.Frecuencia)</span>
+                        }
+                    </div>
+
+                    <!-- Render ideas of this pair inline without copying text -->
+                    @if (par.Idea1 != null)
+                    {
+                        var idea = par.Idea1;
+                        <a asp-action="Evaluar" asp-route-id="@idea.Id" class="card" style="text-decoration: none; color: inherit; display: block; background-color: rgba(15,23,42,0.8); border-left: 4px solid @(idea.Estado == "Pendiente" ? "var(--primary-color)" : idea.Estado == "Aprobada" ? "var(--success)" : "var(--danger)"); padding: 1.25rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <h3 style="margin-top:0; color:var(--primary-color); font-size: 1.1rem;">@idea.Equipo?.Nombre</h3>
+                                    <p style="font-size: 0.95rem; line-height: 1.5;">@idea.Texto</p>
+                                    <small class="text-muted" style="font-size: 0.8rem;">Postulada: @idea.FechaHoraPostulacion.ToString("g")</small>
+                                </div>
+                                <div>
+                                    <span class="badge @(idea.Estado == "Pendiente" ? "bg-warning" : idea.Estado == "Aprobada" ? "bg-success" : "bg-danger")">
+                                        @idea.Estado
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                    
+                    <div class="similar-divider" style="margin-bottom: 1rem;">― VS ―</div>
+
+                    @if (par.Idea2 != null)
+                    {
+                        var idea = par.Idea2;
+                        <a asp-action="Evaluar" asp-route-id="@idea.Id" class="card" style="text-decoration: none; color: inherit; display: block; background-color: rgba(15,23,42,0.8); border-left: 4px solid @(idea.Estado == "Pendiente" ? "var(--primary-color)" : idea.Estado == "Aprobada" ? "var(--success)" : "var(--danger)"); padding: 1.25rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <h3 style="margin-top:0; color:var(--primary-color); font-size: 1.1rem;">@idea.Equipo?.Nombre</h3>
+                                    <p style="font-size: 0.95rem; line-height: 1.5;">@idea.Texto</p>
+                                    <small class="text-muted" style="font-size: 0.8rem;">Postulada: @idea.FechaHoraPostulacion.ToString("g")</small>
+                                </div>
+                                <div>
+                                    <span class="badge @(idea.Estado == "Pendiente" ? "bg-warning" : idea.Estado == "Aprobada" ? "bg-success" : "bg-danger")">
+                                        @idea.Estado
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="similar-group">
+                <div class="no-similares">
+                    <div class="icon">✅</div>
+                    <p>No se encontraron pares con similitudes significativas.</p>
+                </div>
+            </div>
+        }
+
+        <div style="margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+            <h3>Resto de Postulaciones</h3>
+            <p class="text-muted">Ideas de equipos que no tienen coincidencias destacables.</p>
+            
+            <div class="items-list" style="margin-top: 1.5rem;">
+                @if (!Model.IdeasSinSimilitud.Any())
+                {
+                    <p class="text-muted text-center" style="width: 100%;">No hay ideas restantes.</p>
+                }
+                @foreach (var idea in Model.IdeasSinSimilitud)
+                {
+                    <a asp-action="Evaluar" asp-route-id="@idea.Id" class="card" style="text-decoration: none; color: inherit; display: block; border-left: 4px solid @(idea.Estado == "Pendiente" ? "var(--primary-color)" : idea.Estado == "Aprobada" ? "var(--success)" : "var(--danger)");">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <h3 style="margin-top:0; color:var(--primary-color);">@idea.Equipo?.Nombre</h3>
+                                <p style="font-size: 1rem;">@idea.Texto</p>
+                                <small class="text-muted">Postulada: @idea.FechaHoraPostulacion.ToString("g")</small>
+                            </div>
+                            <div>
+                                <span class="badge @(idea.Estado == "Pendiente" ? "bg-warning" : idea.Estado == "Aprobada" ? "bg-success" : "bg-danger")">
+                                    @idea.Estado
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+<style>
+    /* Botón Mostrar Similares */
+    .btn-similares {
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .btn-similares:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+        background: linear-gradient(135deg, #d97706, #dc2626);
+    }
+
+    .btn-similares.active {
+        background: linear-gradient(135deg, #dc2626, #9333ea);
+    }
+
+    .btn-icon {
+        font-size: 1.1rem;
+    }
+
+    /* Similar group cards */
+    .similar-group {
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .similar-group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .similitud-badge {
+        background: linear-gradient(135deg, #ef4444, #f97316);
+        color: white;
+        padding: 0.3em 0.8em;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    /* Divisor de barras entre frases similares */
+    .similar-divider {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        padding: 0.25rem 0;
+        letter-spacing: 4px;
+        user-select: none;
+        font-weight: bold;
+    }
+
+    .palabras-comunes {
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+        color: var(--text-main);
+    }
+
+    .no-similares {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+    }
+
+    .no-similares .icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .similares-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .similares-title .count-badge {
+        background: var(--danger);
+        color: white;
+        padding: 0.15em 0.55em;
+        border-radius: 12px;
+        font-size: 0.8rem;
+    }
+</style>
+
+<script>
+    let similaresVisible = false;
+
+    function toggleSimilares() {
+        const listNormal = document.getElementById('lista-normal');
+        const listSimilares = document.getElementById('lista-similares');
+        const btn = document.getElementById('btnMostrarSimilares');
+
+        if (similaresVisible) {
+            listNormal.style.display = 'block';
+            listSimilares.style.display = 'none';
+            btn.classList.remove('active');
+            btn.innerHTML = '<span class="btn-icon">🔍</span> Ordenar por Similitudes';
+            similaresVisible = false;
+        } else {
+            listNormal.style.display = 'none';
+            listSimilares.style.display = 'block';
+            btn.classList.add('active');
+            btn.innerHTML = '<span class="btn-icon">📅</span> Ordenar por Fecha';
+            similaresVisible = true;
+        }
+    }
+</script>
+}

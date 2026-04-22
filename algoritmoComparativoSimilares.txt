@@ -1,0 +1,167 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+// Stopwords en español (sin acentos, agrupados de forma limpia)
+var palabrasConectoras = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+{
+    "el", "la", "los", "las", "un", "una", "unos", "unas",
+    "y", "o", "u", "e", "pero", "como", "que", "de", "del", "a", "al", "en",
+    "por", "para", "con", "sin", "sobre", "entre", "hasta", "desde",
+    "mi", "mis", "tu", "tus", "su", "sus", "nuestro", "nuestra", "se", "lo",
+    "me", "te", "le", "les", "nos", "os", "yo", "tu", "el", "ella", "ellos", "ellas",
+    "ser", "es", "son", "era", "eran", "fui", "fueron", "tiene", "tienen", "hay",
+    "este", "esta", "estos", "estas", "ese", "esa", "esos", "esas", "aquel", "aquella",
+    "mas", "muy", "mucho", "poco", "ya", "si", "no", "cual", "sean", "de", "que" 
+};
+
+string filePath = "FrasesComparacion.txt";
+
+if (!File.Exists(filePath))
+{
+    Console.WriteLine($"El archivo {filePath} no fue encontrado.");
+    return;
+}
+
+var frases = File.ReadAllLines(filePath)
+    .Where(f => !string.IsNullOrWhiteSpace(f) && !f.Trim().StartsWith("//"))
+    .Select(f => f.Trim())
+    .ToList();
+
+Console.WriteLine("=== Análisis de Similitud (Todas contra Todas) ===");
+Console.WriteLine($"Se procesarán {frases.Count} frases...");
+Console.WriteLine();
+
+int comparacionIndex = 1;
+for (int i = 0; i < frases.Count; i++)
+{
+    for (int j = i + 1; j < frases.Count; j++)
+    {
+        string frase1 = frases[i];
+        string frase2 = frases[j];
+
+        var res = CalcularSimilitud(frase1, frase2, palabrasConectoras);
+        
+        Console.WriteLine($"Comparación {comparacionIndex} - Similitud: {res.Similitud:P2}");
+        Console.WriteLine($"  1. {frase1}");
+        Console.WriteLine($"  2. {frase2}");
+
+        if (res.PalabrasComunes.Any())
+        {
+            Console.WriteLine("  > Raíces (Lemmas) en común:");
+            foreach (var (palabra, frecuencia) in res.PalabrasComunes)
+            {
+                Console.WriteLine($"    * \"{palabra}\" ({frecuencia} veces)");
+            }
+        }
+        else
+        {
+            Console.WriteLine("  > No hay palabras con significado en común.");
+        }
+        Console.WriteLine(new string('-', 50));
+        comparacionIndex++;
+    }
+}
+
+static (double Similitud, List<(string Palabra, int Frecuencia)> PalabrasComunes) CalcularSimilitud(string frase1, string frase2, HashSet<string> palabrasIgnorar)
+{
+    var (unicas1, todas1) = ObtenerPalabras(frase1, palabrasIgnorar);
+    var (unicas2, todas2) = ObtenerPalabras(frase2, palabrasIgnorar);
+
+    if (unicas1.Count == 0 && unicas2.Count == 0) 
+        return (0, new List<(string, int)>());
+
+    int interseccion = unicas1.Intersect(unicas2, StringComparer.OrdinalIgnoreCase).Count();
+    int union = unicas1.Union(unicas2, StringComparer.OrdinalIgnoreCase).Count();
+    double similitud = (double)interseccion / union;
+
+    var palabrasEnComun = unicas1.Intersect(unicas2, StringComparer.OrdinalIgnoreCase).ToList();
+    var informacionPalabras = new List<(string, int)>();
+
+    foreach(var palabra in palabrasEnComun)
+    {
+        int totalApariciones = todas1.Count(p => p.Equals(palabra, StringComparison.OrdinalIgnoreCase)) +
+                               todas2.Count(p => p.Equals(palabra, StringComparison.OrdinalIgnoreCase));
+        
+        informacionPalabras.Add((palabra, totalApariciones));
+    }
+
+    informacionPalabras = informacionPalabras.OrderByDescending(p => p.Item2).ToList();
+    return (similitud, informacionPalabras);
+}
+
+static string RemoverTildes(string texto)
+{
+    string consignos = "áàäéèëíìïóòöúùüñÁÀÄÉÈËÍÌÏÓÒÖÚÙÜÑ";
+    string sinsignos = "aaaeeeiiiooouuunAAAEEEIIIOOOUUUN";
+    for (int v = 0; v < consignos.Length; v++)
+    {
+        texto = texto.Replace(consignos[v], sinsignos[v]);
+    }
+    return texto;
+}
+
+// Función para Lematizar / Aplicar Stemming sencillo
+static string Lematizar(string palabra)
+{
+    if (palabra.Length < 4) return palabra;
+
+    // Terminaciones ordenadas de mayor a menor longitud
+    string[] terminaciones = { 
+        "mente", "ciones", "cion", "adas", "ados", "idas", "idos", 
+        "ando", "iendo", "aron", "ieron", "amos", "emos", "imos", 
+        "ado", "ida", "ido", "tas", "tos", "as", "os", "es", "ar", "er", "ir", 
+        "a", "o", "e", "s" 
+    };
+
+    foreach (var term in terminaciones)
+    {
+        // Se asegura de que la raíz que quede tenga al menos 3 letras
+        if (palabra.EndsWith(term) && palabra.Length - term.Length >= 3)
+        {
+            return palabra.Substring(0, palabra.Length - term.Length);
+        }
+    }
+
+    return palabra;
+}
+
+static (HashSet<string> Unicas, List<string> Todas) ObtenerPalabras(string frase, HashSet<string> palabrasIgnorar)
+{
+    var unicas = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    var todas = new List<string>();
+    var palabraActual = new System.Text.StringBuilder();
+
+    int inicio = 0;
+    if (frase.Length > 2 && char.IsDigit(frase[0]) && frase[1] == '-')
+    {
+        inicio = 2;
+    }
+
+    string textoProcesar = frase + " "; 
+    for (int i = inicio; i < textoProcesar.Length; i++)
+    {
+        char c = textoProcesar[i];
+        if (char.IsLetterOrDigit(c))
+        {
+            palabraActual.Append(c);
+        }
+        else if (palabraActual.Length > 0)
+        {
+            string palabraOriginal = palabraActual.ToString();
+            string palabraLimpia = RemoverTildes(palabraOriginal).ToLowerInvariant();
+            
+            if (!palabrasIgnorar.Contains(palabraLimpia) && palabraLimpia.Length > 1)
+            {
+                // Extraemos la raiz (lemma/stem) de la palabra limpia
+                string lemma = Lematizar(palabraLimpia);
+                unicas.Add(lemma);
+                todas.Add(lemma);
+            }
+            palabraActual.Clear();
+        }
+    }
+
+    return (unicas, todas);
+}

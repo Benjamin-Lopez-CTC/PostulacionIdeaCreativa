@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IdeasCreativasApp.Data;
 using IdeasCreativasApp.ViewModels;
+using IdeasCreativasApp.Services;
 
 namespace IdeasCreativasApp.Controllers
 {
@@ -24,6 +25,8 @@ namespace IdeasCreativasApp.Controllers
         {
             _context = context;
         }
+
+
 
         [HttpGet]
         public IActionResult Login()
@@ -79,7 +82,19 @@ namespace IdeasCreativasApp.Controllers
                 ViewBag.Message = TempData["ValidarMessage"].ToString();
             }
 
-            return View(ideas);
+            var paresSimilares = ComparadorFrases.CompararTodas(ideas);
+
+            var idsSimilares = paresSimilares.SelectMany(p => new[] { p.Idea1Id, p.Idea2Id }).ToHashSet();
+            var ideasSinSimilitud = ideas.Where(i => !idsSimilares.Contains(i.Id)).ToList();
+
+            var viewModel = new ValidarViewModel
+            {
+                TodasLasIdeas = ideas,
+                ParesSimilares = paresSimilares,
+                IdeasSinSimilitud = ideasSinSimilitud
+            };
+
+            return View(viewModel);
         }
 
         [Authorize]

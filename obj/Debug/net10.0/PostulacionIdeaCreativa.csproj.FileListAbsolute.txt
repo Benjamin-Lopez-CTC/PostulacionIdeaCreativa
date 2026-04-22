@@ -195,3 +195,4 @@ C:\Users\benja\Desktop\Benjamin\Prog\Antigravity\PostulacionIdeaCreativa\obj\Deb
 C:\Users\benja\Desktop\Benjamin\Prog\Antigravity\PostulacionIdeaCreativa\obj\Debug\net10.0\PostulacionIdeaCreativa.pdb
 C:\Users\benja\Desktop\Benjamin\Prog\Antigravity\PostulacionIdeaCreativa\obj\Debug\net10.0\PostulacionIdeaCreativa.genruntimeconfig.cache
 C:\Users\benja\Desktop\Benjamin\Prog\Antigravity\PostulacionIdeaCreativa\obj\Debug\net10.0\ref\PostulacionIdeaCreativa.dll
+C:\Users\benja\Desktop\Benjamin\Prog\Antigravity\PostulacionIdeaCreativa\obj\Debug\net10.0\PostulacionIdeaCreativa.sourcelink.json
