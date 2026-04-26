@@ -7,8 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+var connUrl = builder.Configuration.GetConnectionString("DefaultConnection");
+if (connUrl != null && (connUrl.StartsWith("postgres://") || connUrl.StartsWith("postgresql://")))
+{
+    var uri = new Uri(connUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    connUrl = $"Host={uri.Host};Port={(uri.Port > 0 ? uri.Port : 5432)};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};";
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connUrl));
 
 // Authentication for Profesor
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
