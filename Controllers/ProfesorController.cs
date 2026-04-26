@@ -82,7 +82,8 @@ namespace IdeasCreativasApp.Controllers
                 ViewBag.Message = TempData["ValidarMessage"].ToString();
             }
 
-            var paresSimilares = ComparadorFrases.CompararTodas(ideas);
+            // Lower threshold to 0.10 (10% Jaccard) to easily catch natural language similarities 
+            var paresSimilares = ComparadorFrases.CompararTodas(ideas, 0.10);
 
             var idsSimilares = paresSimilares.SelectMany(p => new[] { p.Idea1Id, p.Idea2Id }).ToHashSet();
             var ideasSinSimilitud = ideas.Where(i => !idsSimilares.Contains(i.Id)).ToList();
