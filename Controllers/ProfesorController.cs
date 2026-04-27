@@ -151,7 +151,7 @@ namespace IdeasCreativasApp.Controllers
             idea.BienPlanteada = model.BienPlanteada;
             idea.EsOriginal = model.EsOriginal;
             idea.Observaciones = model.Observaciones;
-            idea.Estado = model.EstadoAprobacion; // "Aprobada" o "Reprobada"
+            idea.Estado = model.EstadoAprobacion; // "Aprobada" o "Rechazada"
 
             await _context.SaveChangesAsync();
 
@@ -162,7 +162,7 @@ namespace IdeasCreativasApp.Controllers
             }
             else
             {
-                TempData["SuccessMessage"] = "idea reprobada";
+                TempData["SuccessMessage"] = "idea rechazada";
             }
 
             return RedirectToAction("Index", "Home");

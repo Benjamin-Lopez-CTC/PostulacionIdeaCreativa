@@ -116,27 +116,27 @@ Para que los equipos sepan si sus ideas son validas y aprobadas.
         - es creativa
         - esta bien planteada
         - Ya se aprobo una idea similar de otro equipo
-        - reprobada
+        - rechazada
         - marco los dos ticks correspondientes
-        - veo un mensaje "idea reprobada"
-        - la idea correspondiente se marca como reprobada
+        - veo un mensaje "idea rechazada"
+        - la idea correspondiente se marca como rechazada
         - me lleva a la pagina principal
 
     **
     - ENTONCES
         - es creativa
         - no esta bien planteada
-        - reprobada
+        - rechazada
         - marco el tick correspondiente
-        - veo un mensaje "idea reprobada"
-        - la idea correspondiente se marca como reprobada
+        - veo un mensaje "idea rechazada"
+        - la idea correspondiente se marca como rechazada
         - me lleva a la pagina principal
 
     **
     - ENTONCES
         - no es creativa
-        - reprobada
+        - rechazada
         - no marco ningun tick
-        - veo un mensaje "idea reprobada"
-        - la idea correspondiente se marca como reprobada
+        - veo un mensaje "idea rechazada"
+        - la idea correspondiente se marca como rechazada
         - me lleva a la pagina principal

@@ -12,7 +12,7 @@ namespace IdeasCreativasApp.Models
 
         public DateTime FechaHoraPostulacion { get; set; }
 
-        // Puede ser Pendiente, Aprobada, Reprobada
+        // Puede ser Pendiente, Aprobada, Rechazada
         public string Estado { get; set; } = "Pendiente";
 
         public int EquipoId { get; set; }

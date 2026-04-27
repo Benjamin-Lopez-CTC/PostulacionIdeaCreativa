@@ -14,7 +14,7 @@ namespace IdeasCreativasApp.ViewModels
         public bool EsOriginal { get; set; }
         
         [Required(ErrorMessage = "Debe elegir un estado de aprobación")]
-        public string EstadoAprobacion { get; set; } = string.Empty; // "Aprobada" o "Reprobada"
+        public string EstadoAprobacion { get; set; } = string.Empty; // "Aprobada" o "Rechazada"
 
         public string? Observaciones { get; set; }
     }

@@ -31,7 +31,7 @@
 
         @foreach (var idea in Model.TodasLasIdeas)
         {
-            <a asp-action="Evaluar" asp-route-id="@idea.Id" class="card" style="text-decoration: none; color: inherit; display: block; border-left: 4px solid @(idea.Estado == "Pendiente" ? "var(--primary-color)" : idea.Estado == "Aprobada" ? "var(--success)" : "var(--danger)");">
+            <a asp-action="Evaluar" asp-route-id="@idea.Id" class="card" style="text-decoration: none; color: inherit; display: block; margin-bottom: 1em; border-left: 4px solid @(idea.Estado == "Pendiente" ? "var(--primary-color)" : idea.Estado == "Aprobada" ? "var(--success)" : "var(--danger)");">
                 <div style="display: flex; justify-content: space-between; align-items: start;">
                     <div>
                         <h3 style="margin-top:0; color:var(--primary-color);">@idea.Equipo?.Nombre</h3>

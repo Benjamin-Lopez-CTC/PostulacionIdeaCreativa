@@ -22,7 +22,16 @@
 
             <div class="form-group">
                 <label asp-for="NombreDelEquipo">Nombre del Equipo</label>
-                <input asp-for="NombreDelEquipo" placeholder="Ingresa el nombre del equipo..." />
+                <select asp-for="NombreDelEquipo">
+                    <option value="">Selecciona tu equipo...</option>
+                    @if (ViewBag.Equipos != null)
+                    {
+                        foreach (var equipo in (IEnumerable<string>)ViewBag.Equipos)
+                        {
+                            <option value="@equipo">@equipo</option>
+                        }
+                    }
+                </select>
                 <span asp-validation-for="NombreDelEquipo" class="text-danger"></span>
             </div>
 

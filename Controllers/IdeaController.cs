@@ -36,6 +36,8 @@ namespace IdeasCreativasApp.Controllers
                 ViewBag.SuccessMessage = TempData["SuccessMessage"].ToString();
             }
 
+            ViewBag.Equipos = await _context.Equipos.Select(e => e.Nombre).ToListAsync();
+
             return View();
         }
 
@@ -51,6 +53,7 @@ namespace IdeasCreativasApp.Controllers
                 if (equipo == null)
                 {
                     ModelState.AddModelError(string.Empty, "Credenciales de equipo inválidas.");
+                    ViewBag.Equipos = await _context.Equipos.Select(e => e.Nombre).ToListAsync();
                     return View(model);
                 }
 
@@ -71,6 +74,7 @@ namespace IdeasCreativasApp.Controllers
                 return RedirectToAction("Postular");
             }
 
+            ViewBag.Equipos = await _context.Equipos.Select(e => e.Nombre).ToListAsync();
             return View(model);
         }
     }
